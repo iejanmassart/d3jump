@@ -340,15 +340,13 @@
 
       // Highlight the link and connected nodes on mouseover.
       function linkMouseover(d) {
+        d = d.srcElement.__data__;
         svg.selectAll(".link").classed("active", function (p) {
           return p === d;
         });
         svg.selectAll(".node circle").classed("active", function (p) {
           return p === d.source || p === d.target;
         });
-        console.log(d);
-        console.log(d.srcElement);
-        console.log(d.source);
         info.text(
           d.source +
             " → " +
