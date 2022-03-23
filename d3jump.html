@@ -423,7 +423,7 @@
         //   .selectAll(".link")
         //   .transition()
         //   .duration(1000)
-        //   .style("stroke-width", 1.5);
+        //   .style("stroke-width", 1.5)
       } else {
         document.getElementById("hopButton").value = "Small Hops";
 
@@ -503,7 +503,6 @@
 
       d3.json("jp.json").then(function (jumpplot) {
         var checkpoints = jumpplot.checkpoints;
-        console.log(filterVal);
         if (filterVal == "revert") {
           var hops = jumpplot.hops;
         } else {
@@ -769,7 +768,6 @@
     function filterHops2(filterT) {
       var svg = d3.select("#chart2").select("svg").select("g");
       var btn = document.getElementById("updateButton").value;
-      console.log(filterT);
       if (btn === "Open Detail") {
         linkClick(filterT);
       }
@@ -791,7 +789,6 @@
         var checkpoints = jumpplot.checkpoints;
 
         var hopsHide = jumpplot.hops;
-        console.log(this.filterT);
         var hops = jumpplot.hops.filter(function (d) {
           return d.team === filterT;
         }); //& d.region == r & d.product == p});
