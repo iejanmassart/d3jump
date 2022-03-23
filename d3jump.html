@@ -407,17 +407,31 @@
     }
 
     function changeHops() {
-      var svg = d3.select("#chart").transition();
+      //TODO transition doet raar
+      var svg = d3.select("#chart");
       var btn = document.getElementById("hopButton").value;
+      var links = svg.selectAll(".link");
 
       if (btn === "Small Hops") {
         document.getElementById("hopButton").value = "Big Hops";
+        console.log(d3.select("#chart").selectAll(".link"));
 
-        svg.selectAll(".link").duration(1000).style("stroke-width", 1.5);
+        links.transition(links.style("stroke-width", 1.5));
+
+        // d3.select("#chart")
+        //   .selectAll(".link")
+        //   .transition()
+        //   .duration(1000)
+        //   .style("stroke-width", 1.5);
       } else {
         document.getElementById("hopButton").value = "Small Hops";
 
-        svg.selectAll(".link").duration(1000).style("stroke-width", 10);
+        console.log(d3.select("#chart").selectAll(".link"));
+        d3.select("#chart")
+          .selectAll(".link")
+          .transition()
+          .duration(1000)
+          .style("stroke-width", 10);
       }
     }
 
