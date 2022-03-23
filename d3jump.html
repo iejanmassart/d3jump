@@ -439,9 +439,7 @@
       var svg = d3.select("#chart").select("svg").select("g");
       var btn = document.getElementById("bezierButton").value;
 
-      d3.json("jp.json", function (error, jumpplot) {
-        if (error) throw error;
-
+      d3.json("jp.json").then(function (jumpplot) {
         var checkpoints = jumpplot.checkpoints;
 
         var hops = jumpplot.hops;
@@ -460,7 +458,7 @@
             .domain([
               0,
               d3.max(hops, function (d) {
-                return d3.round(d.value, 2) + 1;
+                return Math.round(d.value, 2) + 1;
               }),
             ])
             .range([0, -height * 0.6]); //this radius basically keeps track of how long the axes are
@@ -502,11 +500,9 @@
         });
       };
 
-      d3.json("jp.json", function (error, jumpplot) {
-        if (error) throw error;
-
+      d3.json("jp.json").then(function (jumpplot) {
         var checkpoints = jumpplot.checkpoints;
-
+        console.log(filterVal);
         if (filterVal == "revert") {
           var hops = jumpplot.hops;
         } else {
@@ -530,13 +526,14 @@
             .domain([
               0,
               d3.max(hops, function (d) {
-                return d3.round(d.value, 2) + 1;
+                return Math.round(d.value, 2) + 1;
               }),
             ])
             .range([0, -height * 0.6]), //this radius basically keeps track of how long the axes are
           yAxisAxis = d3.axisLeft(yAxis, "left", 5);
 
         var axis = svg.select("g").transition().duration(1000).call(yAxisAxis);
+        //
         //this is needed to log to
 
         var link = svg.selectAll(".link").data(hops);
@@ -558,16 +555,16 @@
         // Remove old elements as needed.
         link
           .exit()
-          .transition()
-          .duration(1000)
+          // .transition()
+          // .duration(1000)
           .attr("d", d3.jump.hop(xAxis, yAxis, t, "y"))
           .style("fill-opacity", 0)
           .remove();
 
         link
           .attr("class", "link")
-          .transition()
-          .duration(1000)
+          // .transition()
+          // .duration(1000)
           .attr("d", d3.jump.hop(xAxis, yAxis, t))
           .style("opacity", 1);
 
@@ -628,9 +625,7 @@
         return;
       }
 
-      d3.json("jpdtl.json", function (error, jumpplot) {
-        if (error) throw error;
-
+      d3.json("jpdtl.json").then(function (jumpplot) {
         var checkpoints = jumpplot.checkpoints;
 
         if (t == null) {
@@ -655,7 +650,7 @@
             .domain([
               0,
               d3.max(hops, function (d) {
-                return d3.round(d.value, 2) + 1;
+                return Math.round(d.value, 2) + 1;
               }),
             ])
             .range([0, -(height * 1.5) * 0.8]), //this radius basically keeps track of how long the axes are
@@ -789,9 +784,7 @@
         });
       };
 
-      d3.json("jpdtl.json", function (error, jumpplot) {
-        if (error) throw error;
-
+      d3.json("jpdtl.json").then(function (jumpplot) {
         var checkpoints = jumpplot.checkpoints;
 
         var hopsHide = jumpplot.hops;
@@ -814,7 +807,7 @@
             .domain([
               0,
               d3.max(hops, function (d) {
-                return d3.round(d.value, 2) + 1;
+                return Math.round(d.value, 2) + 1;
               }),
             ])
             .range([0, -(height * 1.5) * 0.8]), //this radius basically keeps track of how long the axes are
@@ -839,16 +832,16 @@
         // Remove old elements as needed.
         link
           .exit()
-          .transition()
-          .duration(1000)
+          // .transition()
+          // .duration(1000)
           .attr("d", d3.jump.hop(xAxis, yAxis, t, "y"))
           .style("fill-opacity", 0)
           .remove();
 
         link
           .attr("class", "link")
-          .transition()
-          .duration(1000)
+          // .transition()
+          // .duration(1000)
           .attr("d", d3.jump.hop(xAxis, yAxis, t))
           .style("opacity", 1);
 
