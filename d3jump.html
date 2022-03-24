@@ -240,7 +240,7 @@
         .domain([
           0,
           d3.max(hops, function (d) {
-            return Math.round(d.value, 2) + 1; //TODO
+            return Math.round(d.value, 2) + 1;
           }),
         ])
         .range([0, -height * 0.6])), //this radius basically keeps track of how long the axes are
@@ -408,32 +408,19 @@
     }
 
     function changeHops() {
-      //TODO transition doet raar
-      var svg = d3.select("#chart");
+      var svg = d3.select("#chart").selectAll(".link");
       var btn = document.getElementById("hopButton").value;
-      var links = svg.selectAll(".link");
 
       if (btn === "Small Hops") {
         document.getElementById("hopButton").value = "Big Hops";
-        console.log(d3.select("#chart").selectAll(".link"));
-
-        links.transition(links.style("stroke-width", 1.5));
-
-        // d3.select("#chart")
-        //   .selectAll(".link")
-        //   .transition()
-        //   .duration(1000)
-        //   .style("stroke-width", 1.5)
+        svg.transition().duration(1000).style("stroke-width", "1.5px");
       } else {
         document.getElementById("hopButton").value = "Small Hops";
-
-        console.log(d3.select("#chart").selectAll(".link"));
-        d3.select("#chart")
-          .selectAll(".link")
-          .transition()
-          .duration(1000)
-          .style("stroke-width", 10);
+        svg.transition().duration(1000).style("stroke-width", "10px");
       }
+    }
+    function transitionStroke2(element, value) {
+      element.transition().duration(1000).style("stroke-width", value);
     }
 
     function changeCurves() {
@@ -501,111 +488,119 @@
         });
       };
 
-      d3.json("jp.json").then(function (jumpplot) {
-        var checkpoints = jumpplot.checkpoints;
-        if (filterVal == "revert") {
-          var hops = jumpplot.hops;
-        } else {
-          var hops = jumpplot.hops.filter(function (d) {
-            return d.region == filterVal;
-          });
-        }
+      for (x = 0; x < 2; x++) {
+        d3.json("jp.json").then(function (jumpplot) {
+          var checkpoints = jumpplot.checkpoints;
+          if (filterVal == "revert") {
+            var hops = jumpplot.hops;
+          } else {
+            var hops = jumpplot.hops.filter(function (d) {
+              return d.region == filterVal;
+            });
+          }
+          //scale get the data again
+          var xAxis = d3
+              .scaleLinear()
+              .domain([
+                0,
+                d3.max(checkpoints, function (d) {
+                  return d.sequence + 1;
+                }),
+              ])
+              .range([0, width * 0.8]), //this radius basically keeps track of how long the axes are
+            yAxis = d3
+              .scaleLinear()
+              .domain([
+                0,
+                d3.max(hops, function (d) {
+                  return Math.round(d.value, 2) + 1;
+                }),
+              ])
+              .range([0, -height * 0.6]), //this radius basically keeps track of how long the axes are
+            yAxisAxis = d3.axisLeft(yAxis, "left", 5);
 
-        //scale get the data again
-        var xAxis = d3
-            .scaleLinear()
-            .domain([
-              0,
-              d3.max(checkpoints, function (d) {
-                return d.sequence + 1;
-              }),
-            ])
-            .range([0, width * 0.8]), //this radius basically keeps track of how long the axes are
-          yAxis = d3
-            .scaleLinear()
-            .domain([
-              0,
-              d3.max(hops, function (d) {
-                return Math.round(d.value, 2) + 1;
-              }),
-            ])
-            .range([0, -height * 0.6]), //this radius basically keeps track of how long the axes are
-          yAxisAxis = d3.axisLeft(yAxis, "left", 5);
+          var axis = svg
+            .select("g")
+            .transition()
+            .duration(1000)
+            .call(yAxisAxis);
+          // var axis = svg.select("g").call(yAxisAxis);
+          // axis = axis._groups[0];
+          //this is needed to log to
 
-        var axis = svg.select("g").transition().duration(1000).call(yAxisAxis);
-        //
-        //this is needed to log to
+          var link = svg.selectAll(".link").data(hops);
 
-        var link = svg.selectAll(".link").data(hops);
+          // append newly added elements
+          link
+            .enter()
+            .append("path")
+            .attr("class", "link")
+            .on("mouseover", linkMouseover)
+            .on("mouseout", mouseout)
+            .on("click", function (d) {
+              filterHops2(d.team, d.region, d.product);
+            })
+            //    .attr("d", d3.jump.hop(xAxis,yAxis,"q","y")) // including this make it so that we cannot see path (it is like the second doesn't run)
+            .style("opacity", 0);
 
-        // append newly added elements
-        link
-          .enter()
-          .append("path")
-          .attr("class", "link")
-          .on("mouseover", linkMouseover)
-          .on("mouseout", mouseout)
-          .on("click", function (d) {
-            filterHops2(d.team, d.region, d.product);
-          })
-          //    .attr("d", d3.jump.hop(xAxis,yAxis,"q","y")) // including this make it so that we cannot see path (it is like the second doesn't run)
-          .style("opacity", 0);
+          // EXIT
+          // Remove old elements as needed.
+          link
+            .exit()
+            .transition()
+            .duration(1000)
+            .attr("d", d3.jump.hop(xAxis, yAxis, t, "y"))
+            .style("fill-opacity", 0)
+            .remove();
 
-        // EXIT
-        // Remove old elements as needed.
-        link
-          .exit()
-          // .transition()
-          // .duration(1000)
-          .attr("d", d3.jump.hop(xAxis, yAxis, t, "y"))
-          .style("fill-opacity", 0)
-          .remove();
+          link
+            .attr("class", "link")
+            .transition()
+            .duration(1000)
+            .attr("d", d3.jump.hop(xAxis, yAxis, t))
+            .style("opacity", 1);
 
-        link
-          .attr("class", "link")
-          // .transition()
-          // .duration(1000)
-          .attr("d", d3.jump.hop(xAxis, yAxis, t))
-          .style("opacity", 1);
+          // need to make sure that we keep the circles in front
+          d3.selectAll(".node").moveToFront();
 
-        // need to make sure that we keep the circles in front
-        d3.selectAll(".node").moveToFront();
+          var info = d3
+            .select("#info")
+            .text(
+              (defaultInfo =
+                "Showing " +
+                formatNumber(hops.length) +
+                " hops among " +
+                formatNumber(checkpoints.length) +
+                " checkpoints.")
+            );
 
-        var info = d3
-          .select("#info")
-          .text(
-            (defaultInfo =
-              "Showing " +
-              formatNumber(hops.length) +
-              " hops among " +
-              formatNumber(checkpoints.length) +
-              " checkpoints.")
-          );
+          // Highlight the link and connected nodes on mouseover.
+          function linkMouseover(d) {
+            svg.selectAll(".link").classed("active", function (p) {
+              return p === d;
+            });
+            svg.selectAll(".node circle").classed("active", function (p) {
+              return p === d.source || p === d.target;
+            });
+            info.text(
+              d.source +
+                " → " +
+                d.target +
+                " " +
+                d.team +
+                " (click to filter Detailed JP)"
+            ); // + " - " + d.team);
+          }
 
-        // Highlight the link and connected nodes on mouseover.
-        function linkMouseover(d) {
-          svg.selectAll(".link").classed("active", function (p) {
-            return p === d;
-          });
-          svg.selectAll(".node circle").classed("active", function (p) {
-            return p === d.source || p === d.target;
-          });
-          info.text(
-            d.source +
-              " → " +
-              d.target +
-              " " +
-              d.team +
-              " (click to filter Detailed JP)"
-          ); // + " - " + d.team);
-        }
+          // Clear any highlighted nodes or links.
+          function mouseout() {
+            svg.selectAll(".active").classed("active", false);
+            info.text(defaultInfo);
+          }
+        });
+      }
 
-        // Clear any highlighted nodes or links.
-        function mouseout() {
-          svg.selectAll(".active").classed("active", false);
-          info.text(defaultInfo);
-        }
-      });
+      // Highlight
     }
 
     // Clear any highlighted nodes or links.
