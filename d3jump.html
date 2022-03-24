@@ -419,9 +419,6 @@
         svg.transition().duration(1000).style("stroke-width", "10px");
       }
     }
-    function transitionStroke2(element, value) {
-      element.transition().duration(1000).style("stroke-width", value);
-    }
 
     function changeCurves() {
       var svg = d3.select("#chart").select("svg").select("g");
@@ -524,8 +521,7 @@
             .transition()
             .duration(1000)
             .call(yAxisAxis);
-          // var axis = svg.select("g").call(yAxisAxis);
-          // axis = axis._groups[0];
+
           //this is needed to log to
 
           var link = svg.selectAll(".link").data(hops);
@@ -576,6 +572,7 @@
 
           // Highlight the link and connected nodes on mouseover.
           function linkMouseover(d) {
+            d = d.srcElement.__data__;
             svg.selectAll(".link").classed("active", function (p) {
               return p === d;
             });
@@ -747,7 +744,6 @@
             return p.source === d || p.target === d;
           });
           d3.select(this).classed("active", true);
-
           info2.text(d.checkpoint + " checkpoint");
         }
 
@@ -827,16 +823,16 @@
         // Remove old elements as needed.
         link
           .exit()
-          // .transition()
-          // .duration(1000)
+          .transition()
+          .duration(1000)
           .attr("d", d3.jump.hop(xAxis, yAxis, t, "y"))
           .style("fill-opacity", 0)
           .remove();
 
         link
           .attr("class", "link")
-          // .transition()
-          // .duration(1000)
+          .transition()
+          .duration(1000)
           .attr("d", d3.jump.hop(xAxis, yAxis, t))
           .style("opacity", 1);
 
