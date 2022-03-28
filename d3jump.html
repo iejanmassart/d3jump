@@ -212,9 +212,26 @@
 
   <script src="//d3js.org/d3.v7.min.js"></script>
   <script src="d3.jump.js"></script>
+  <script src="config.js"></script>
   <script>
-    var width = 667, //960,
-      height = 375, //850,
+    var config = configJP({
+      colorDots: "white",
+      width: 780,
+      height: 600,
+      hopColor: "pink",
+      hopWidth: "2.5px",
+      hopBigWidth: "20px",
+      axisColor: "green",
+      textAxisColor: "red",
+      axisInfoColor: "blue",
+      transitionDuration: 100,
+      mouseOverColor: "Orange",
+    });
+    console.log(config);
+    // var config = configJP({}); // To return to default
+
+    var width = config.width, //960,
+      height = config.height, //850,
       formatNumber = d3.format(",d");
     //transform the x/y points into the hive using the scale (e.g., y is radius, x is angle)
     //angle is equal to the ordinal scale of
@@ -283,7 +300,7 @@
         .append("text")
         .attr("x", width * 0.64)
         .attr("y", height * 0.1)
-        .style("fill", "orange")
+        .style("fill", config.axisInfoColor)
         .style("opacity", 0.8)
         .style("text-anchor", "right")
         .text("Sequence of Events →");
@@ -291,8 +308,8 @@
       svg
         .append("g") // Add the Y Axis
         .attr("class", "axis")
-        .style("stroke", "grey")
-        .style("fill", "grey")
+        .style("stroke", config.textAxisColor)
+        .style("fill", config.textAxisColor)
         .call(yAxisAxis);
 
       // Add the text label for the Y axis
@@ -302,7 +319,7 @@
         .attr("y", -width * 0.08) // - margin.left)
         .attr("x", (height * 0.6) / 2)
         .attr("dy", "1em")
-        .style("fill", "grey")
+        .style("fill", config.axisInfoColor)
         .style("text-anchor", "middle")
         .text("Seconds Elapsed →");
 
@@ -322,6 +339,17 @@
           filterHops2(d.team, d.region, d.product);
         });
 
+      svg.selectAll(".link").style("stroke", config.hopColor);
+      svg.selectAll(".link").style("stroke-width", config.hopWidth);
+
+      svg.select("line").style("stroke", config.axisColor);
+      svg.select("path.domain").style("stroke", config.axisColor);
+      svg.selectAll(".tick text").style("fill", config.textAxisColor);
+      svg.selectAll(".tick text").style("color", config.textAxisColor);
+      svg.selectAll(".tick line").style("stroke", config.axisColor);
+      svg.selectAll(".tick line").style("fill", config.axisColor);
+      svg.select("g .axis").style("color", config.axisColor);
+
       svg
         .selectAll(".node")
         .data(checkpoints)
@@ -335,7 +363,7 @@
           return yAxis(0);
         })
         .attr("r", 5)
-        .style("fill", "orange") //function(d) { return color(d.sequence); })
+        .style("fill", config.colorDots) //function(d) { return color(d.sequence); })
         .on("mouseover", nodeMouseover)
         .on("mouseout", mouseout);
 
@@ -345,6 +373,7 @@
         svg.selectAll(".link").classed("active", function (p) {
           return p === d;
         });
+        svg.select(".active").style("stroke", config.mouseOverColor);
         svg.selectAll(".node circle").classed("active", function (p) {
           return p === d.source || p === d.target;
         });
@@ -360,6 +389,7 @@
 
       // Highlight the node and connected links on mouseover.
       function nodeMouseover(d) {
+        d = d.srcElement.__data__;
         svg.selectAll(".link").classed("active", function (p) {
           return p.source === d || p.target === d;
         });
@@ -388,7 +418,7 @@
       } else {
         document.getElementById("colorButton").value = "Color Hops";
 
-        svg.selectAll(".link").style("stroke", ""); // this colors the curves as well.
+        svg.selectAll(".link").style("stroke", config.hopColor); // this colors the curves as well.
       }
     }
 
@@ -399,11 +429,14 @@
       if (btn === "Small Checkpoints") {
         document.getElementById("circleButton").value = "Big Checkpoints";
 
-        svg.selectAll(".node").duration(1000).attr("r", 5);
+        svg.selectAll(".node").duration(config.transitionDuration).attr("r", 5);
       } else {
         document.getElementById("circleButton").value = "Small Checkpoints";
 
-        svg.selectAll(".node").duration(1000).attr("r", 10);
+        svg
+          .selectAll(".node")
+          .duration(config.transitionDuration)
+          .attr("r", 10);
       }
     }
 
@@ -413,10 +446,16 @@
 
       if (btn === "Small Hops") {
         document.getElementById("hopButton").value = "Big Hops";
-        svg.transition().duration(1000).style("stroke-width", "1.5px");
+        svg
+          .transition()
+          .duration(config.transitionDuration)
+          .style("stroke-width", config.hopWidth);
       } else {
         document.getElementById("hopButton").value = "Small Hops";
-        svg.transition().duration(1000).style("stroke-width", "10px");
+        svg
+          .transition()
+          .duration(config.transitionDuration)
+          .style("stroke-width", config.hopBigWidth);
       }
     }
 
@@ -454,7 +493,7 @@
           svg
             .selectAll(".link")
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr("d", d3.jump.hop(xAxis, yAxis, "c"));
         } else {
           document.getElementById("bezierButton").value = "Cubic";
@@ -462,7 +501,7 @@
           svg
             .selectAll(".link")
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr("d", d3.jump.hop(xAxis, yAxis, "q"));
         }
       });
@@ -519,7 +558,7 @@
           var axis = svg
             .select("g")
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .call(yAxisAxis);
 
           //this is needed to log to
@@ -544,7 +583,7 @@
           link
             .exit()
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr("d", d3.jump.hop(xAxis, yAxis, t, "y"))
             .style("fill-opacity", 0)
             .remove();
@@ -552,7 +591,7 @@
           link
             .attr("class", "link")
             .transition()
-            .duration(1000)
+            .duration(config.transitionDuration)
             .attr("d", d3.jump.hop(xAxis, yAxis, t))
             .style("opacity", 1);
 
@@ -594,6 +633,8 @@
             svg.selectAll(".active").classed("active", false);
             info.text(defaultInfo);
           }
+          svg.selectAll(".link").style("stroke", config.hopColor);
+          svg.selectAll(".link").style("stroke-width", config.hopWidth);
         });
       }
 
@@ -728,6 +769,7 @@
 
         // Highlight the link and connected nodes on mouseover.
         function linkMouseover(d) {
+          console.log("772");
           d = d.srcElement.__data__;
           svg.selectAll(".link").classed("active", function (p) {
             return p === d;
@@ -735,11 +777,13 @@
           svg.selectAll(".node circle").classed("active", function (p) {
             return p === d.source || p === d.target;
           });
+          svg.selectAll(".active").style("stroke", config.mouseOverColor);
           info2.text(d.source + " → " + d.target); //+ " - " + d.team + " - " + d.value + " - " + d.seriescount + " - " + (parseFloat(d.seriescount) / parseFloat(maxcount)));
         }
 
         // Highlight the node and connected links on mouseover.
         function nodeMouseover(d) {
+          d = d.srcElement.__data__;
           svg.selectAll(".link").classed("active", function (p) {
             return p.source === d || p.target === d;
           });
@@ -749,9 +793,20 @@
 
         // Clear any highlighted nodes or links.
         function mouseout() {
+          svg.selectAll(".active").style("stroke", config.hopColor);
           svg.selectAll(".active").classed("active", false);
           info2.text(defaultInfo2);
         }
+        svg.selectAll(".link").style("stroke", config.hopColor);
+        svg.selectAll(".link").style("stroke-width", config.hopWidth);
+
+        svg.select("line").style("stroke", config.axisColor);
+        svg.select("path.domain").style("stroke", config.axisColor);
+        svg.selectAll(".tick text").style("fill", config.textAxisColor);
+        svg.selectAll(".tick text").style("color", config.textAxisColor);
+        svg.selectAll(".tick line").style("stroke", config.axisColor);
+        svg.selectAll(".tick line").style("fill", config.axisColor);
+        svg.select("g .axis").style("color", config.axisColor);
       });
     }
 
@@ -824,7 +879,7 @@
         link
           .exit()
           .transition()
-          .duration(1000)
+          .duration(config.transitionDuration)
           .attr("d", d3.jump.hop(xAxis, yAxis, t, "y"))
           .style("fill-opacity", 0)
           .remove();
@@ -832,7 +887,7 @@
         link
           .attr("class", "link")
           .transition()
-          .duration(1000)
+          .duration(config.transitionDuration)
           .attr("d", d3.jump.hop(xAxis, yAxis, t))
           .style("opacity", 1);
 
@@ -852,6 +907,7 @@
 
         // Highlight the link and connected nodes on mouseover.
         function linkMouseover(d) {
+          console.log("906");
           svg.selectAll(".link").classed("active", function (p) {
             return p === d;
           });
