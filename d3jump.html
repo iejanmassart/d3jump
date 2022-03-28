@@ -226,6 +226,8 @@
       axisInfoColor: "blue",
       transitionDuration: 100,
       mouseOverColor: "Orange",
+      nodeSize: 10,
+      nodeBigSize: 30,
     });
     console.log(config);
     // var config = configJP({}); // To return to default
@@ -362,7 +364,7 @@
         .attr("cy", function (d) {
           return yAxis(0);
         })
-        .attr("r", 5)
+        .attr("r", config.nodeSize)
         .style("fill", config.colorDots) //function(d) { return color(d.sequence); })
         .on("mouseover", nodeMouseover)
         .on("mouseout", mouseout);
@@ -430,14 +432,17 @@
       if (btn === "Small Checkpoints") {
         document.getElementById("circleButton").value = "Big Checkpoints";
 
-        svg.selectAll(".node").duration(config.transitionDuration).attr("r", 5);
+        svg
+          .selectAll(".node")
+          .duration(config.transitionDuration)
+          .attr("r", config.nodeSize);
       } else {
         document.getElementById("circleButton").value = "Small Checkpoints";
 
         svg
           .selectAll(".node")
           .duration(config.transitionDuration)
-          .attr("r", 10);
+          .attr("r", config.nodeBigSize);
       }
     }
 
@@ -763,14 +768,13 @@
           .attr("cy", function (d) {
             return yAxis(0);
           })
-          .attr("r", 5)
-          .style("fill", "orange")
+          .attr("r", config.nodeSize)
+          .style("fill", config.colorDots)
           .on("mouseover", nodeMouseover)
           .on("mouseout", mouseout);
 
         // Highlight the link and connected nodes on mouseover.
         function linkMouseover(d) {
-          console.log("772");
           d = d.srcElement.__data__;
           svg.selectAll(".link").classed("active", function (p) {
             return p === d;

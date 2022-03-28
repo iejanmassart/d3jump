@@ -55,5 +55,15 @@ function configJP(conf) {
   } else {
     myObj.mouseOverColor = conf.mouseOverColor;
   }
+  if (!conf.nodeSize) {
+    myObj.nodeSize = 5;
+  } else {
+    myObj.nodeSize = conf.nodeSize;
+  }
+  if (!conf.nodeBigSize) {
+    myObj.nodeBigSize = 10;
+  } else {
+    myObj.nodeBigSize = conf.nodeBigSize;
+  }
   return myObj;
 }
