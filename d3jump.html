@@ -399,6 +399,7 @@
 
       // Clear any highlighted nodes or links.
       function mouseout() {
+        svg.selectAll(".link").style("stroke", config.hopColor);
         svg.selectAll(".active").classed("active", false);
         info.text(defaultInfo);
       }
